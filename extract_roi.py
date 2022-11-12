@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     img_files = [x for x in Path(cli.train).glob('**/*') if x.is_file() and x.name.endswith('.jpg')]
     for img_path in tqdm(img_files):
-        img = cv2.imread(str(img_path))
+        img = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
 
         # cv2.imshow('image',img)
         # cv2.waitKey(0)

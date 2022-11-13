@@ -25,7 +25,7 @@ BOXES = [
     [627, 427, 627 + 193, 427 + 93],
     [522, 654, 522 + 90, 654 + 85],
     [704, 594, 704 + 90, 594 + 80],
-    [545, 577, 545 + 81, 577 + 75],
+    [545, 577, 81, 75],
     [460, 700, 52, 80]
 ]
 
@@ -129,66 +129,96 @@ def mse(imageA, imageB):
 	# the two images are
 	return err
 
+
 def video(path):
     # Counters
-    roi1_count, roi6_count = 0, 0
+    roi1_count, roi5_count, roi6_count = 0, 0, 0
 
     # Load Models
-    model_roi6 = torch.load('models/roi6/vgg11_trained.pt')
-    model_roi6.eval()
+    # model_roi1 = torch.load('models/roi1/vgg11_trained.pt')
+    # model_roi1.eval()
 
-    model_roi1 = torch.load('models/roi1/vgg11_trained.pt')
-    model_roi1.eval()
+    model_roi5 = torch.load('models/roi5/vgg11_trained.pt')
+    model_roi5.eval()
+
+    # model_roi6 = torch.load('models/roi6/vgg11_trained.pt')
+    # model_roi6.eval()
 
     cap = cv2.VideoCapture(path)
+    counter = 0
 
     while cap.isOpened():
         _, image = cap.read()
-        image = cv2.resize(image, (1024, 1024))
+        # image = cv2.resize(image, (1024, 1024))
 
         # ROI 1
-        x, y, w, h = BOXES[0]
+        # x, y, w, h = BOXES[0]
+        # cv2.imwrite("temp.jpg", image[y:y + h, x:x + w])
+        # crop = TRANSFORMATIONS(Image.open("temp.jpg"))
+        # crop = crop.view(1, 3, IMG_SIZE, IMG_SIZE)
+        
+        # outputs = model_roi1(crop)
+        # _, preds = torch.max(abs(outputs), 1)
+
+        # color = (0,255,0)
+        # if preds[0].item() == 0:
+        #     roi1_count += 1
+        #     color = (255, 0, 0)
+            
+        # cv2.putText(image, f"Count- {roi1_count}", (x,y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        # cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
+        
+        # ROI 5
+        x, y, w, h = BOXES[-2]
         cv2.imwrite("temp.jpg", image[y:y + h, x:x + w])
         crop = TRANSFORMATIONS(Image.open("temp.jpg"))
         crop = crop.view(1, 3, IMG_SIZE, IMG_SIZE)
         
-        outputs = model_roi1(crop)
+        outputs = model_roi5(crop)
         _, preds = torch.max(abs(outputs), 1)
 
         color = (0,255,0)
         if preds[0].item() == 0:
-            roi1_count += 1
+            roi5_count += 1
             color = (255, 0, 0)
             
-        cv2.putText(image, f"Count- {roi1_count}", (x,y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.putText(image, f"Count- {roi5_count}", (x,y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
-        
+
         # ROI 6
-        x, y, w, h = BOXES[-1]
-        cv2.imwrite("temp.jpg", image[y:y + h, x:x + w])
-        crop = TRANSFORMATIONS(Image.open("temp.jpg"))
-        crop = crop.view(1, 3, IMG_SIZE, IMG_SIZE)
+        # x, y, w, h = BOXES[-1]
+        # cv2.imwrite("temp.jpg", image[y:y + h, x:x + w])
+        # crop = TRANSFORMATIONS(Image.open("temp.jpg"))
+        # crop = crop.view(1, 3, IMG_SIZE, IMG_SIZE)
         
-        outputs = model_roi6(crop)
-        _, preds = torch.max(abs(outputs), 1)
+        # outputs = model_roi6(crop)
+        # _, preds = torch.max(abs(outputs), 1)
 
-        color = (0,255,0)
-        if preds[0].item() == 0:
-            roi6_count += 1
-            color = (255, 0, 0)
+        # color = (0,255,0)
+        # if preds[0].item() == 0:
+        #     roi6_count += 1
+        #     color = (255, 0, 0)
             
-        cv2.putText(image, f"Count- {roi6_count}", (x,y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-        cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
+        # cv2.putText(image, f"Count- {roi6_count}", (x,y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        # cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
         
-        cv2.imshow('Video', image)
+        # cv2.imshow('Video', image)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
+
+        counter += 1
+        if counter % 500 == 0:
+            print(f'Iterations Completed - {counter}')
+            print(f'ROI5 = {roi5_count}')
 
     os.remove("temp.jpg")
 
-    return roi1_count, roi6_count
+    return roi1_count, roi5_count, roi6_count
+
 
 if __name__ == '__main__':
-    roi1, roi6 = video('video.avi')
-    print(f'ROI1 Count - {roi1}\nROI6 Count - {roi6}')
+    roi1, roi5, roi6 = video('video.avi')
+    print(f'ROI1 Count - {roi1}')
+    print(f'ROI1 Count - {roi5}')
+    print(f'ROI6 Count - {roi6}')

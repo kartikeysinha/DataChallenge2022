@@ -1,5 +1,6 @@
 # DataChallenge2022
 MusashiAI Data Challenge 2022
+https://www.linkedin.com/posts/musashi-ai-waterloo_data-ai-artificialintelligence-activity-6997950762924351488-YpBp?utm_source=share&utm_medium=member_desktop
 
 
 # Challenge:
